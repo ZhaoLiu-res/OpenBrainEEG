@@ -6,7 +6,7 @@
 
 ![Local EEG workspace](frontend/public/guide/home-en.png)
 
-独立的本地脑电工作台，源自 Brainifly 本地版。无需登录，支持中英文、Windows / macOS 启动、真实样例、数据清洗、历史报告和多轮 AI 解读。界面暂保留 Brainifly 品牌。
+独立的本地脑电工作台，源自 Brainifly 详见www.brainifly.com 。本地版无需登录，支持中英文、Windows / macOS 启动、真实样例、数据清洗、历史报告和多轮 AI 解读。界面暂保留 Brainifly 品牌。
 
 This repository contains only the standalone local edition, its automated tests,
 and two attributed PhysioNet EDF examples. It does not include the original
