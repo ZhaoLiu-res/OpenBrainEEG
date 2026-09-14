@@ -1,0 +1,87 @@
+{
+  "source": "Sibling Brainifly-main working copy",
+  "upstream": "https://github.com/ZhaoLiu-res/Brainifly",
+  "note": "Only algorithm/report core copied; no cloud accounts, payment, quota, database or API modules. Source ZIP commit provenance remains unverified.",
+  "files": [
+    {
+      "path": "backend/core/exporter.py",
+      "sha256": "30d4ae8c6b686d7076992c3535acdecf09e7d3320143867216d2af2006f05d99"
+    },
+    {
+      "path": "backend/core/loader.py",
+      "sha256": "b1faeab86e926f54b78f07b691a6e5cc41bc7e08845e1dfea205416a6f5a9017"
+    },
+    {
+      "path": "backend/core/openbci_loader.py",
+      "sha256": "35dc6f1e85023c9644d8a67b721efd0291de26d9905dada7d9630fde5a4bce6b"
+    },
+    {
+      "path": "backend/core/pipeline.py",
+      "sha256": "3951b0bc627fd426e0ef096e180624a81dd96bbb0899fb15511f2340d150deb5"
+    },
+    {
+      "path": "backend/core/presets.py",
+      "sha256": "bf8199ffbd911972a3d0bc6d28c07f6f89d8ca4b510daad4215a71b7a1192f71"
+    },
+    {
+      "path": "backend/core/quality.py",
+      "sha256": "7199851231dbc208f2bfb75b8ed604950a3ad8e6c10974db7a35a66b3c1c3cee"
+    },
+    {
+      "path": "backend/core/signal_preview.py",
+      "sha256": "115b08396dc74da57bb0d213351dcb63370b09b0a5457a58fe74424992ae79a6"
+    },
+    {
+      "path": "backend/core/__init__.py",
+      "sha256": "c630eeb8d322f8c2e70936cbe6070250ca3e067a2089bfaa5514a7814caf0cab"
+    },
+    {
+      "path": "backend/core/steps/asr.py",
+      "sha256": "82792a574b2d786524b974a3658ad5bc4da529e2cd3ac0f16bccfdef72d8c5b5"
+    },
+    {
+      "path": "backend/core/steps/bad_channels.py",
+      "sha256": "01318f669fcf785c1144d20d03bf5d7cfb7b4c8fbe78f06b7456f9d213ef5ad0"
+    },
+    {
+      "path": "backend/core/steps/base.py",
+      "sha256": "d1e522accdd8f3d2b7773ce152f8258d0477e9390461084de870c9c0337efe63"
+    },
+    {
+      "path": "backend/core/steps/epochs.py",
+      "sha256": "19defd1bb69099551f748ffeea48507b176fabb519469d041ae94a0e536ea438"
+    },
+    {
+      "path": "backend/core/steps/filtering.py",
+      "sha256": "d9f160567095fd6bde3ae482e1a3673369f369875ac660f4f7a5feca3c1341ea"
+    },
+    {
+      "path": "backend/core/steps/ica.py",
+      "sha256": "8d370425bf25aaf504e3fd0cd5b574104995743cbde72d1b6503a2b7ea827526"
+    },
+    {
+      "path": "backend/core/steps/reference.py",
+      "sha256": "6e64bbdfc7867f8d5b41e35c7aeb1e93a03452378e17053dcde64902c0f8a29c"
+    },
+    {
+      "path": "backend/core/steps/__init__.py",
+      "sha256": "bf5ee15cff514638954a94a931942a1cbef35c34aa7a4318487fab1d12c58c0a"
+    },
+    {
+      "path": "backend/report/figures.py",
+      "sha256": "b4701c031805e063ce6ffa268ea99da4592bf524626fc381bfea1c5eab4f5e9f"
+    },
+    {
+      "path": "backend/report/generator.py",
+      "sha256": "c405e0485f4afe298940c901602d48ebe0600702eaaad5067ed9a97e33f97786"
+    },
+    {
+      "path": "backend/report/static_figures.py",
+      "sha256": "6d7c472a2516fafe4e02a47c231baa7b1614b045ee13df6d08d94b20e59a95b6"
+    },
+    {
+      "path": "backend/report/__init__.py",
+      "sha256": "3a4145793e604a02d137a197166a5b39d58922096d2a83fe307ff198734dd9b9"
+    }
+  ]
+}

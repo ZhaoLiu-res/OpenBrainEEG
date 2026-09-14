@@ -1,0 +1,16 @@
+[
+  {
+    "file": "physionet/S001R01.edf",
+    "sha256": "4743b736131a7e147c150e8b37711029b6cda5e356c4b3e8261a03cdcaaf8b0c",
+    "bytes": 1275936,
+    "source": "https://physionet.org/files/eegmmidb/1.0.0/S001/S001R01.edf",
+    "license": "ODC-By-1.0"
+  },
+  {
+    "file": "physionet/S001R04.edf",
+    "sha256": "3d161f88e1c00632585287d2ce584c2bc0f08862438eb255ea8723e00fac693d",
+    "bytes": 2596896,
+    "source": "https://physionet.org/files/eegmmidb/1.0.0/S001/S001R04.edf",
+    "license": "ODC-By-1.0"
+  }
+]

@@ -1,0 +1,52 @@
+.report-assistant { width:100%; min-width:0; }
+.ra-top { display:flex; align-items:center; justify-content:space-between; gap:24px; margin-bottom:24px; }
+.ra-top h2 { margin:0 0 6px; font-size:26px; }
+.ra-top p { margin:0; color:var(--muted); }
+.ra-top>a { white-space:nowrap; }
+.ra-workspace { display:grid; grid-template-columns:260px minmax(0,1fr); background:#fff; border:1px solid var(--line); border-radius:14px; overflow:hidden; }
+.ra-history { padding:20px 14px; background:#f8faff; border-right:1px solid var(--line); min-width:0; max-height:1000px; overflow:auto; }
+.ra-history>button:first-child { width:100%; }
+.ra-history h3 { margin:26px 8px 14px; font-size:15px; color:var(--muted); }
+.ra-history>p { padding:0 8px; font-size:14px; }
+.ra-history .ra-chat-link { display:block; width:100%; padding:13px 12px; margin:5px 0; text-align:left; background:transparent; color:var(--ink); border:1px solid transparent; border-radius:8px; }
+.ra-chat-link strong { display:block; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:15px; font-weight:600; }
+.ra-chat-link span { display:block; color:var(--muted); font-size:12px; margin-top:5px; }
+.ra-history .ra-chat-link:hover,.ra-history .ra-chat-link.selected { background:#eaf0ff; border-color:#cbd9fb; }
+.ra-discussion { min-width:0; display:flex; flex-direction:column; }
+.ra-context { padding:18px 24px; display:flex; gap:12px; align-items:center; flex-wrap:wrap; border-bottom:1px solid var(--line); }
+.ra-context label { font-weight:600; font-size:14px; }
+.ra-context select { flex:1; min-width:180px; max-width:600px; width:auto; margin:0; }
+.ra-context>a { font-size:14px; white-space:nowrap; }
+.ra-model { margin-left:auto; font-size:13px; color:var(--muted); max-width:250px; overflow-wrap:anywhere; }
+.ra-context-note { margin:0; padding:8px 24px; background:#f8faff; font-size:12px; color:var(--muted); }
+.ra-messages { flex:1; min-height:300px; height:clamp(320px,46vh,720px); max-height:720px; overflow-y:auto; overscroll-behavior:contain; padding:28px clamp(20px,3vw,60px); }
+.ra-empty { max-width:780px; margin:22px auto; }
+.ra-empty h3 { margin:0 0 12px; font-size:24px; }
+.ra-empty p { color:var(--muted); overflow-wrap:anywhere; }
+.ra-prompts { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; margin-top:24px; }
+.ra-prompts button { text-align:left; white-space:normal; line-height:1.6; padding:14px 16px; font-size:15px; }
+.ra-message { max-width:960px; margin:0 auto 26px; }
+.ra-message.user { background:#f1f5ff; border-left:3px solid var(--blue); border-radius:0 8px 8px 0; padding:16px 20px; }
+.ra-message.assistant { padding:4px 0 14px; }
+.ra-message-heading { display:flex; gap:16px; align-items:center; margin-bottom:10px; font-size:14px; }
+.ra-message-heading span { font-size:12px; color:var(--muted); }
+.ra-rich { font-size:16px; line-height:1.8; overflow-wrap:anywhere; }
+.ra-rich p { margin:3px 0; white-space:pre-wrap; }
+.ra-rich h4 { margin:18px 0 8px; font-size:18px; }
+.ra-rich pre { white-space:pre-wrap; padding:16px; background:#f3f5f8; border-radius:6px; overflow:auto; }
+.ra-rich code { font-size:.9em; background:#edf1f7; border-radius:3px; padding:1px 4px; }
+.ra-rich pre code { padding:0; background:transparent; }
+.ra-rich .ra-bullet { padding-left:16px; text-indent:-14px; }
+.ra-pending { color:var(--blue); padding:12px 0; font-size:15px; }
+.ra-composer { padding:18px 24px 20px; border-top:1px solid var(--line); background:#fff; }
+.ra-share { display:flex; align-items:center; gap:9px; font-size:14px; font-weight:600; }
+.ra-share input { width:17px; height:17px; margin:0; flex-shrink:0; }
+.ra-privacy { margin:9px 0 14px; font-size:12px; line-height:1.6; color:var(--muted); max-width:1050px; }
+.ra-composer textarea { resize:vertical; min-height:96px; max-height:320px; margin:0; font-size:16px; }
+.ra-send-row { display:flex; align-items:center; justify-content:space-between; gap:16px; margin-top:12px; }
+.ra-send-row small { font-size:12px; color:var(--muted); }
+.ra-notice { background:#edf3ff; padding:12px 14px; margin:0 0 14px; font-size:14px; border-radius:6px; }
+.report-assistant :is(button,a,input,select,textarea):focus-visible { outline:3px solid #91b0fb; outline-offset:3px; }
+@media(min-width:2100px) { .ra-workspace { grid-template-columns:300px minmax(0,1fr); } .ra-messages { max-height:900px; } }
+@media(max-width:1100px) { .ra-workspace { grid-template-columns:200px minmax(0,1fr); } .ra-prompts { grid-template-columns:1fr; } .ra-top { align-items:flex-start; flex-direction:column; } }
+@media(max-width:720px) { .ra-workspace { grid-template-columns:1fr; } .ra-history { max-height:210px; border-right:0; border-bottom:1px solid var(--line); } .ra-history h3 { margin:14px 8px 6px; } .ra-context,.ra-composer { padding:16px; } .ra-messages { padding:20px 16px; } .ra-model { width:100%; margin:0; } .ra-send-row { align-items:flex-end; } }
