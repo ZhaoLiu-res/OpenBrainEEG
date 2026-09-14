@@ -2,6 +2,10 @@
 
 **Local EEG cleaning, quality reports and configurable AI report discussions.**
 
+[Download a release](https://github.com/ZhaoLiu-res/OpenBrainEEG/releases) · [What's new](CHANGELOG.md) · [Report a problem](https://github.com/ZhaoLiu-res/OpenBrainEEG/issues)
+
+![Local EEG workspace](frontend/public/guide/home-en.png)
+
 独立的本地脑电工作台，源自 Brainifly 本地版。无需登录，支持中英文、Windows / macOS 启动、真实样例、数据清洗、历史报告和多轮 AI 解读。界面暂保留 Brainifly 品牌。
 
 This repository contains only the standalone local edition, its automated tests,
@@ -9,9 +13,9 @@ and two attributed PhysioNet EDF examples. It does not include the original
 hosted application's accounts, billing, cloud administration, private settings,
 or repository history.
 
-**Release status: source preview.** The application code license is pending;
-this is not yet a completed open-source licensing release. See
-[licensing status](LICENSING.md). The included dataset has its own ODC-By license.
+**License: personal noncommercial use.** Commercial and organizational use require written authorization. This is source-available software, not OSI open source. See [full license](LICENSE.md) and [third-party notices](LICENSING.md).
+
+**使用手册 / User guide:** [中文图文手册](docs/USER_GUIDE.zh-CN.md) · [Illustrated English guide](docs/USER_GUIDE.en.md). 在系统侧栏打开「使用文档」或「版权信息」。
 
 ## 快速开始 / Quick start
 
@@ -46,7 +50,7 @@ Home → Samples or EEG cleaning → Job progress → Report viewer. History & r
 
 页面使用哈希地址（例如 `#/history`、`#/reports/任务ID`），支持刷新和浏览器前进/后退。仅在当前任务进度页完成处理时自动跳转，浏览其他页面时不会被抢走。
 
-工作台按可用窗口宽度伸展，已移除 1500 像素工作区和 1100 像素报告宽度上限，覆盖 1980×1280 与 2560×1440 布局目标；正文/控件以 16 像素为基准，并提供窄屏布局。浏览器缩放与系统显示缩放会改变 CSS 可用宽度；当前尚未完成实机截图验收。
+工作台按可用窗口宽度伸展，已移除 1500 像素工作区和 1100 像素报告宽度上限，覆盖 1980×1280 与 2560×1440 布局目标；正文/控件以 16 像素为基准，并提供窄屏布局。浏览器缩放与系统显示缩放会改变 CSS 可用宽度；图文手册包含 1980×1280 实际浏览器截图；系统显示缩放仍以本机设置为准。
 
 ## 功能和范围 / Scope
 
@@ -56,7 +60,7 @@ Home → Samples or EEG cleaning → Job progress → Report viewer. History & r
 - 中文 / English 界面和报告；报告语言在提交时确定。
 - 本地文件保存任务与结果，无每日额度；一次运行一个任务，默认最多 4 个排队/运行任务（系统设置可调整），避免单机资源失控。
 - 没有用户、订阅、支付、管理平台、数据库迁移或在线账号功能。
-- 本版暂不接收需要配套文件的 SET / BrainVision，也未迁入原版批量管理、分享链接、知识库和科研图表多样式压缩包。
+- 本版暂不接收需要配套文件的 SET / BrainVision，也未迁入原版批量管理、分享链接、知识库。
 
 Single-file inputs only. Multi-file SET/BrainVision, public sharing, cloud administration and batch management are not part of this initial edition. Computational limits protect the local machine; they are not paid quotas.
 
@@ -89,19 +93,19 @@ AI 支持 Ollama、LM Studio、vLLM/llama.cpp，以及 DeepSeek、Kimi、豆包�
 System settings owns upload limits, queue limits, report preferences and AI connections. The separate report assistant supports linked reports, multi-turn questions and persistent local conversations. Provider presets and model discovery share tested Ollama, Chat Completions and Anthropic Messages adapters. DeepSeek has been verified with the existing key; other live providers and local model installations require their own credentials/services.
 
 
-## PDF 与平台差异 / PDF and platform notes
+## PDF 与科研图导出 / PDF and research figures
 
-HTML 报告默认可用。PDF 需要额外安装：
+报告页提供「生成 PDF 报告」和「生成科研图包」。完成后显示下载按钮；已完成的历史任务也可使用，不重新运行清洗。可在提交任务前勾选自动生成 PDF。
 
-```powershell
-backend/.venv/Scripts/python.exe -m pip install -r backend/requirements-pdf.txt
-```
+PDF 使用 ReportLab 跨平台生成，常规安装不再需要 WeasyPrint/Pango。旧安装运行 `python start.py setup` 更新依赖；保留的 `requirements-pdf.txt` 仅供原版 HTML 转 PDF 引擎使用，不是本地版新入口的依赖。
 
-Windows 另安装 MSYS2，在 UCRT64 终端执行 `pacman -S mingw-w64-ucrt-x86_64-pango`，然后在启动终端设置 `$env:WEASYPRINT_DLL_DIRECTORIES='C:\msys64\ucrt64\bin'`。
+科研图 ZIP 包含 3 种样式（academic_bw / standard_color / presentation），每种最多 7 类图：质量评分、PSD、波形、通道标准差、频段功率、头皮分布和步骤耗时。每图导出 300 dpi PNG、SVG、PDF；矢量容器中的栅格元素不会自动变成矢量。图内使用英文标注，包内附参数、指标、步骤和导出清单。
 
-macOS 安装 `brew install pango`，并运行 `backend/.venv/bin/python -m pip install -r backend/requirements-pdf.txt`。缺少系统库时显示警告并保留 HTML，不会把 HTML 伪装为 PDF。参考 [WeasyPrint 安装说明](https://doc.courtbouillon.org/weasyprint/stable/first_steps.html#installation)。
+导出复用已保存的原始输入、清洗 FIF/EDF、参数、指标及步骤，需保留对应文件。不恢复未保存的 ICA 成分对象。缺少电极位置时，原绘图器可能使用标准模板或显示说明占位图；请检查导出提示及 manifest.json，发表前复核位置、单位和期刊要求。
 
-Windows / Python 3.14 的 SciPy 兼容约束随安装生效。macOS 尚待实机验收；不把 Windows 的成功当作 Mac 已通过。默认任务使用 CPU，5090 不会自动加速所有 MNE 步骤。
+PDF and research-figure exports are generated on demand from completed jobs, without rerunning cleaning. PDF uses the cross-platform ReportLab dependency. The figure ZIP includes three styles and up to seven figure types, in 300 dpi PNG, SVG and PDF, plus a manifest and processing metadata. Keep original inputs and cleaned FIF/EDF outputs. Historical ICA objects are not restored. Check placeholders, montage assumptions and partial-export warnings before publication.
+
+Exports share the single cleaning executor and persist their state. Leaving the page does not cancel them. Interrupted exports can be retried after restart; failed exports preserve existing HTML and completed cleaning results.
 
 ## 开发和数据 / Development and data
 
@@ -117,8 +121,8 @@ python start.py frontend
 
 本版没有登录边界，仅供本机单用户使用，启动脚本固定绑定 127.0.0.1。不要改成 0.0.0.0 后公开部署。
 
-## 开源状态 / Licensing status
+## 版权与使用许可 / Copyright and license
 
-本版是独立的本地预览版，尚未替权利人选定主许可证。第三方库、模型和数据条款仍需按实际制品核验，不能把“可以运行”视为已完成开源授权。原版审查结论需按精简后的依赖重新生成，详见 [版本边界](docs/EDITION.md)。
+个人可按 [完整许可](LICENSE.md) 免费用于非商业学习和研究、修改及按相同条款免费分享。商用和组织使用须另行获得书面授权。第三方数据、模型和代码保留各自许可，见 [第三方与权属说明](LICENSING.md)。
 
-For research preprocessing only. Quality scores and AI explanations are not medical diagnoses.
+这是非商业源码许可，不是 OSI 定义的开源许可。软件、质量评分和 AI 解释可能出错，需独立复核，不构成医疗诊断。免责声明不排除法律禁止排除的责任。

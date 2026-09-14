@@ -16,4 +16,4 @@ is disabled; users configure their own local service or API key. Interface IP
 locale detection performs a disclosed country-only lookup in auto mode and
 falls back to browser language. See SYSTEM_SETTINGS.md and REPORT_ASSISTANT.md.
 
-Public source preview only: see ../LICENSING.md for the pending code license.
+Personal noncommercial source license: see ../LICENSE.md. Third-party provenance review remains separate; see ../LICENSING.md.

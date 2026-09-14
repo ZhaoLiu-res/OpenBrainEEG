@@ -8,6 +8,7 @@ import math
 import os
 from pathlib import Path
 import shutil
+import tempfile
 from threading import RLock
 from uuid import uuid4
 
@@ -95,6 +96,10 @@ class Jobs:
                 self.items[job["id"]] = job
                 if job["status"] in {"queued", "running"}:
                     self.update(job["id"], status="failed", error="Processing was interrupted. Submit again.")
+                for kind, state in job.get("exports", {}).items():
+                    if state.get("status") in {"queued", "running"}:
+                        job["exports"][kind] = {"status": "failed", "error": "Export was interrupted. Please retry."}
+                        self.update(job["id"], exports=job["exports"])
             except (ValueError, KeyError):
                 continue
 
@@ -148,6 +153,7 @@ class Jobs:
             pipeline.on_progress(progress)
             result = pipeline.run_and_export(raw, path, path.parent / "outputs", export_basename="cleaned")
             raw.close()
+            result.dataset_info.filename = self.get(job_id)["filename"]
             warnings = [w for step in result.step_results for w in step.warnings]
             warnings.extend(f"{kind}: {error}" for kind, error in result.export_errors.items())
             outputs = {kind: str(p.relative_to(path.parent)) for kind, p in result.exported_files.items()}
@@ -159,12 +165,12 @@ class Jobs:
                     report = generator.generate_html(path.parent / "report.html")
                     outputs["html"] = report.name
                 if "pdf" in config.report_formats:
-                    pdf = generator.generate_pdf(path.parent / "report.pdf")
-                    if pdf.suffix == ".pdf":
-                        outputs["pdf"] = pdf.name
-                    else:
-                        warnings.append("PDF unavailable: install WeasyPrint and Pango. HTML report is available.")
-                        outputs["html"] = pdf.name
+                    try:
+                        from local_exports import pdf_report
+                        warnings.extend(pdf_report(result, path.parent / "report.pdf", reconstructed=False))
+                        outputs["pdf"] = "report.pdf"
+                    except Exception as exc:
+                        warnings.append(f"PDF export failed; use the report-page retry button: {type(exc).__name__}: {exc}")
             import matplotlib.pyplot as plt
             if "html" in outputs:
                 html_path = path.parent / outputs["html"]
@@ -176,6 +182,66 @@ class Jobs:
                         metrics=asdict(result.metrics), steps=[asdict(s) for s in result.step_results])
         except Exception as exc:
             self.update(job_id, status="failed", error=f"{type(exc).__name__}: {exc}", step="failed")
+
+    def submit_export(self, job_id, kind):
+        from local_exports import saved_file
+        with self.lock:
+            job = self.get(job_id)
+            if job["status"] != "completed":
+                raise HTTPException(409, "Finish cleaning before exporting the report or figures.")
+            existing = job.get("outputs", {}).get(kind)
+            if existing:
+                try:
+                    saved_file(self.root / job_id, existing)
+                    return job
+                except ValueError:
+                    pass  # A removed export can be regenerated.
+            states = job.get("exports", {})
+            if states.get(kind, {}).get("status") in {"queued", "running"}:
+                return job
+            pending = sum(s.get("status") in {"queued", "running"} for j in self.items.values() for s in j.get("exports", {}).values())
+            if pending >= 4:
+                raise HTTPException(429, "Four exports are already active or queued. Wait before submitting another.")
+            states[kind] = {"status": "queued", "step": "waiting", "error": None, "warnings": []}
+            self.update(job_id, exports=states)
+            # Use the cleaning executor: Matplotlib and large recordings must not run concurrently.
+            self.pool.submit(self.run_export, job_id, kind)
+            return self.get(job_id)
+
+    def run_export(self, job_id, kind):
+        from local_exports import restore_result, pdf_report, research_bundle
+        result = None
+        def state(**values):
+            with self.lock:
+                states = self.get(job_id).get("exports", {})
+                states[kind] = {**states.get(kind, {}), **values}
+                self.update(job_id, exports=states)
+        try:
+            state(status="running", step="loading", error=None)
+            job = self.get(job_id)
+            directory = self.root / job_id
+            result = restore_result(directory, job)
+            filename = "report.pdf" if kind == "pdf" else "research_figures.zip"
+            with tempfile.TemporaryDirectory(prefix="export-", dir=directory) as temporary:
+                target = Path(temporary) / filename
+                export = pdf_report if kind == "pdf" else research_bundle
+                warnings = export(result, target, lambda step: state(step=step))
+                if not target.is_file() or not target.stat().st_size:
+                    raise ValueError("Export did not create a valid output file.")
+                target.replace(directory / filename)
+            with self.lock:
+                outputs = self.get(job_id).get("outputs", {})
+                outputs[kind] = filename
+                self.update(job_id, outputs=outputs)
+                state(status="completed", step="done", warnings=warnings)
+        except Exception as exc:
+            state(status="failed", error=f"{type(exc).__name__}: {exc}", step="failed")
+        finally:
+            if result is not None:
+                result.raw_before.close()
+                result.raw_after.close()
+            import matplotlib.pyplot as plt
+            plt.close("all")
 
 
 @asynccontextmanager
@@ -277,6 +343,13 @@ def list_jobs(request: Request):
 @app.get("/api/jobs/{job_id}")
 def get_job(job_id: str, request: Request):
     return request.app.state.jobs.get(job_id)
+
+
+@app.post("/api/jobs/{job_id}/exports/{kind}")
+def create_export(job_id: str, kind: str, request: Request):
+    if kind not in {"pdf", "research_figures"}:
+        raise HTTPException(422, "Supported exports: pdf, research_figures")
+    return request.app.state.jobs.submit_export(job_id, kind)
 
 
 def output_path(job_id: str, kind: str, request: Request):

@@ -257,5 +257,77 @@ class LocalTests(unittest.TestCase):
             server.shutdown(); server.server_close(); thread.join()
 
 
+
+    def test_export_guards_and_idempotent_queue(self):
+        jobs = self.client.app.state.jobs
+        directory = jobs.root / 'export-fixture'
+        directory.mkdir()
+        jobs.items['export-fixture'] = {'id':'export-fixture','status':'completed','outputs':{},'exports':{}}
+        url = '/api/jobs/export-fixture/exports/pdf'
+        self.assertEqual(self.client.post(url).status_code,403)
+        self.assertEqual(self.client.post(url.replace('/pdf','/unknown'),headers=self.headers).status_code,422)
+        jobs.items['export-fixture']['status']='running'
+        self.assertEqual(self.client.post(url,headers=self.headers).status_code,409)
+        jobs.items['export-fixture']['status']='completed'
+        with patch.object(jobs.pool,'submit') as submit:
+            self.assertEqual(self.client.post(url,headers=self.headers).json()['exports']['pdf']['status'],'queued')
+            self.client.post(url,headers=self.headers)
+            self.assertEqual(submit.call_count,1)
+        jobs.update('export-fixture',exports={'pdf':{'status':'failed','error':'fixture'}})
+        with patch.object(jobs.pool,'submit') as submit:
+            self.client.post(url,headers=self.headers)
+            submit.assert_called_once()
+
+
+    def test_export_failure_preserves_cleaning_and_rejects_traversal(self):
+        from local_exports import saved_file
+        jobs=self.client.app.state.jobs
+        directory=jobs.root/'export-failure';directory.mkdir()
+        existing=directory/'report.html';existing.write_text('original report')
+        jobs.items['export-failure']={'id':'export-failure','status':'completed','outputs':{'html':'report.html'},'exports':{},'metrics':{'quality_score':76}}
+        outside=self.directory/'outside.txt';outside.write_text('private')
+        with self.assertRaises(ValueError):saved_file(directory,'../../outside.txt')
+        with patch('local_exports.restore_result',side_effect=ValueError('Missing saved input')):
+            jobs.run_export('export-failure','pdf')
+        result=jobs.get('export-failure')
+        self.assertEqual(result['status'],'completed')
+        self.assertEqual(result['outputs'],{'html':'report.html'})
+        self.assertEqual(result['exports']['pdf']['status'],'failed')
+        self.assertEqual(existing.read_text(),'original report')
+
+    def test_interrupted_export_recovers_without_failing_cleaning(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root=Path(directory)
+            task=root/'jobs'/'recover';task.mkdir(parents=True)
+            (task/'job.json').write_text(json.dumps({'id':'recover','status':'completed','outputs':{'html':'report.html'},'exports':{'pdf':{'status':'running'}}}))
+            jobs=local_app.Jobs(root)
+            try:
+                job=jobs.get('recover')
+                self.assertEqual(job['status'],'completed')
+                self.assertEqual(job['exports']['pdf']['status'],'failed')
+                self.assertEqual(job['outputs']['html'],'report.html')
+            finally:jobs.pool.shutdown()
+
+    def test_portable_pdf_contains_saved_metrics_and_escaped_unicode(self):
+        from types import SimpleNamespace
+        from local_exports import pdf_report
+        from core.quality import QualityMetrics
+        from core.steps.base import StepResult
+        from config import PipelineConfig
+        from pypdf import PdfReader
+        result=SimpleNamespace(config=PipelineConfig(report_language='zh'),
+            dataset_info=SimpleNamespace(filename='测试 <recording>.edf',n_channels=4,sfreq=128,duration=20),
+            metrics=QualityMetrics(quality_score=73,n_bad_channels=2),
+            step_results=[StepResult(step_name='filter',description='检查 <value>',duration=1,warnings=['复核 & 保留原始数据'])],total_duration=1)
+        path=self.directory/'fixture.pdf'
+        with patch('local_exports.render_figures',return_value=iter([])):
+            pdf_report(result,path)
+        reader=PdfReader(path)
+        text='\n'.join(page.extract_text() for page in reader.pages)
+        self.assertIn('测试 <recording>.edf',text)
+        self.assertIn('复核 & 保留原始数据',text)
+        self.assertIn('73 / 100',text)
+        self.assertIn('report_language',text)
+
 if __name__ == '__main__':
     unittest.main()
